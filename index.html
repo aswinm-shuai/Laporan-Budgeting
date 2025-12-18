@@ -1,11 +1,1192 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>BudgetKita - Kelola Keuangan Keluarga</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #8B7FC8;
+            --secondary-color: #A8D5BA;
+            --accent-color: #6C63FF;
+            --bg-light: #F8F9FA;
+            --text-dark: #2D3436;
+            --success-green: #6BCF8E;
+            --danger-red: #F08080;
+            --warning-yellow: #FFD93D;
+            --border-radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            padding: 1rem 0;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: white;
+            font-weight: 500;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(108, 99, 255, 0.4);
+        }
+
+        .card-custom {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: none;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card-custom:hover {
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .income-icon {
+            background: linear-gradient(135deg, #6BCF8E 0%, #5CB85C 100%);
+            color: white;
+        }
+
+        .expense-icon {
+            background: linear-gradient(135deg, #F08080 0%, #E74C3C 100%);
+            color: white;
+        }
+
+        .balance-icon {
+            background: linear-gradient(135deg, #8B7FC8 0%, #6C63FF 100%);
+            color: white;
+        }
+
+        .progress-custom {
+            height: 10px;
+            border-radius: 10px;
+            background: #E9ECEF;
+        }
+
+        .progress-bar-custom {
+            border-radius: 10px;
+            transition: width 0.6s ease;
+        }
+
+        .modal-content {
+            border-radius: var(--border-radius);
+            border: none;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #E0E0E0;
+            padding: 0.7rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
+        }
+
+        .transaction-item {
+            padding: 1rem;
+            border-radius: 10px;
+            background: white;
+            margin-bottom: 0.8rem;
+            transition: all 0.3s ease;
+            border: 1px solid #f0f0f0;
+        }
+
+        .transaction-item:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transform: translateX(5px);
+        }
+
+        .badge-custom {
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #95A5A6;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .spinner-custom {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f0f0f0;
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .btn-fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 20px rgba(108, 99, 255, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .btn-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(108, 99, 255, 0.6);
+        }
+
+        @media (max-width: 768px) {
+            .stat-card {
+                margin-bottom: 1rem;
+            }
+            
+            .btn-fab {
+                bottom: 1rem;
+                right: 1rem;
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        .nav-link {
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--accent-color);
+        }
+    </style>
 </head>
 <body>
-    <p>Aswin</p>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="spinner-custom"></div>
+    </div>
+
+    <!-- Auth Pages -->
+    <div id="authPages" style="display: none;">
+        <!-- Login Page -->
+        <div id="loginPage" class="auth-container">
+            <div class="auth-card">
+                <div class="text-center mb-4">
+                    <h1 class="logo-text">BudgetKita</h1>
+                    <p class="text-muted">Kelola Keuangan Keluarga dengan Mudah</p>
+                </div>
+                
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="loginEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" id="loginPassword" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">Ingat Saya</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom w-100 mb-3">Masuk</button>
+                    <div class="text-center">
+                        <a href="#" onclick="showRegister()" class="text-decoration-none">Belum punya akun? Daftar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Register Page -->
+        <div id="registerPage" class="auth-container" style="display: none;">
+            <div class="auth-card">
+                <div class="text-center mb-4">
+                    <h1 class="logo-text">BudgetKita</h1>
+                    <p class="text-muted">Buat Akun Baru</p>
+                </div>
+                
+                <form id="registerForm">
+                    <div class="mb-3">
+                        <label class="form-label">Nama Lengkap</label>
+                        <input type="text" class="form-control" id="registerName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="registerEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" id="registerPassword" required minlength="6">
+                        <small class="text-muted">Minimal 6 karakter</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Peran dalam Keluarga</label>
+                        <select class="form-select" id="registerRole" required>
+                            <option value="AYAH">Ayah (Kepala Keluarga)</option>
+                            <option value="BUNDA">Bunda (Pasangan)</option>
+                            <option value="ANAK">Anak</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom w-100 mb-3">Daftar</button>
+                    <div class="text-center">
+                        <a href="#" onclick="showLogin()" class="text-decoration-none">Sudah punya akun? Masuk</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" style="display: none;">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+            <div class="container">
+                <a class="navbar-brand logo-text" href="#">BudgetKita</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" onclick="showSection('dashboard')">
+                                <i class="bi bi-house-door"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showSection('transactions')">
+                                <i class="bi bi-list-ul"></i> Transaksi
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showSection('budget')">
+                                <i class="bi bi-pie-chart"></i> Anggaran
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showSection('savings')">
+                                <i class="bi bi-piggy-bank"></i> Tabungan
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showSection('reports')">
+                                <i class="bi bi-graph-up"></i> Laporan
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> <span id="userName"></span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#" onclick="showSection('profile')">
+                                    <i class="bi bi-person"></i> Profil
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="showSection('family')">
+                                    <i class="bi bi-people"></i> Keluarga
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="logout()">
+                                    <i class="bi bi-box-arrow-right"></i> Keluar
+                                </a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Dashboard Section -->
+        <div id="dashboardSection" class="container mt-4">
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted mb-1">Total Pemasukan</p>
+                                <h3 class="mb-0" id="totalIncome">Rp 0</h3>
+                            </div>
+                            <div class="stat-icon income-icon">
+                                <i class="bi bi-arrow-down-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted mb-1">Total Pengeluaran</p>
+                                <h3 class="mb-0" id="totalExpense">Rp 0</h3>
+                            </div>
+                            <div class="stat-icon expense-icon">
+                                <i class="bi bi-arrow-up-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted mb-1">Saldo</p>
+                                <h3 class="mb-0" id="balance">Rp 0</h3>
+                            </div>
+                            <div class="stat-icon balance-icon">
+                                <i class="bi bi-wallet2"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Budget Progress -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card-custom p-4">
+                        <h5 class="mb-3">Progress Anggaran Bulan Ini</h5>
+                        <div id="budgetProgress"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card-custom p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Transaksi Terakhir</h5>
+                            <a href="#" onclick="showSection('transactions')" class="text-decoration-none">Lihat Semua</a>
+                        </div>
+                        <div id="recentTransactions"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions Section -->
+        <div id="transactionsSection" class="container mt-4" style="display: none;">
+            <div class="card-custom p-4">
+                <h5 class="mb-4">Semua Transaksi</h5>
+                <div id="allTransactions"></div>
+            </div>
+        </div>
+
+        <!-- Budget Section -->
+        <div id="budgetSection" class="container mt-4" style="display: none;">
+            <div class="card-custom p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="mb-0">Manajemen Anggaran</h5>
+                    <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#budgetModal">
+                        <i class="bi bi-plus-lg"></i> Tambah Anggaran
+                    </button>
+                </div>
+                <div id="budgetList"></div>
+            </div>
+        </div>
+
+        <!-- Savings Section -->
+        <div id="savingsSection" class="container mt-4" style="display: none;">
+            <div class="card-custom p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="mb-0">Target Tabungan</h5>
+                    <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#savingsModal">
+                        <i class="bi bi-plus-lg"></i> Tambah Target
+                    </button>
+                </div>
+                <div id="savingsList"></div>
+            </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div id="reportsSection" class="container mt-4" style="display: none;">
+            <div class="card-custom p-4">
+                <h5 class="mb-4">Laporan Keuangan</h5>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">Periode</label>
+                        <select class="form-select" id="reportPeriod" onchange="updateReports()">
+                            <option value="daily">Harian</option>
+                            <option value="monthly" selected>Bulanan</option>
+                            <option value="yearly">Tahunan</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="reportContent"></div>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profileSection" class="container mt-4" style="display: none;">
+            <div class="card-custom p-4">
+                <h5 class="mb-4">Profil Saya</h5>
+                <div id="profileContent"></div>
+            </div>
+        </div>
+
+        <!-- Family Section -->
+        <div id="familySection" class="container mt-4" style="display: none;">
+            <div class="card-custom p-4">
+                <h5 class="mb-4">Anggota Keluarga</h5>
+                <div class="mb-4">
+                    <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#inviteModal">
+                        <i class="bi bi-plus-lg"></i> Undang Anggota
+                    </button>
+                </div>
+                <div id="familyMembers"></div>
+            </div>
+        </div>
+
+        <!-- FAB Button -->
+        <button class="btn-fab" data-bs-toggle="modal" data-bs-target="#transactionModal">
+            <i class="bi bi-plus-lg"></i>
+        </button>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div class="modal fade" id="transactionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Transaksi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="transactionForm">
+                        <div class="mb-3">
+                            <label class="form-label">Jenis</label>
+                            <select class="form-select" id="transactionType" required>
+                                <option value="income">Pemasukan</option>
+                                <option value="expense">Pengeluaran</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kategori</label>
+                            <select class="form-select" id="transactionCategory" required>
+                                <option value="Makanan">Makanan</option>
+                                <option value="Transportasi">Transportasi</option>
+                                <option value="Belanja">Belanja</option>
+                                <option value="Hiburan">Hiburan</option>
+                                <option value="Pendidikan">Pendidikan</option>
+                                <option value="Kesehatan">Kesehatan</option>
+                                <option value="Gaji">Gaji</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nominal</label>
+                            <input type="number" class="form-control" id="transactionAmount" required min="0">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tanggal</label>
+                            <input type="date" class="form-control" id="transactionDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Catatan (Opsional)</label>
+                            <textarea class="form-control" id="transactionNote" rows="2"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom w-100">Simpan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget Modal -->
+    <div class="modal fade" id="budgetModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Atur Anggaran</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="budgetForm">
+                        <div class="mb-3">
+                            <label class="form-label">Kategori</label>
+                            <select class="form-select" id="budgetCategory" required>
+                                <option value="Makanan">Makanan</option>
+                                <option value="Transportasi">Transportasi</option>
+                                <option value="Belanja">Belanja</option>
+                                <option value="Hiburan">Hiburan</option>
+                                <option value="Pendidikan">Pendidikan</option>
+                                <option value="Kesehatan">Kesehatan</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Jumlah Anggaran</label>
+                            <input type="number" class="form-control" id="budgetAmount" required min="0">
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom w-100">Simpan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Savings Modal -->
+    <div class="modal fade" id="savingsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Target Tabungan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="savingsForm">
+                        <div class="mb-3">
+                            <label class="form-label">Nama Target</label>
+                            <input type="text" class="form-control" id="savingsName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Target Nominal</label>
+                            <input type="number" class="form-control" id="savingsTarget" required min="0">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tanggal Target</label>
+                            <input type="date" class="form-control" id="savingsDate" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom w-100">Simpan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invite Modal -->
+    <div class="modal fade" id="inviteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Undang Anggota Keluarga</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center p-4">
+                        <h3 class="mb-3">Kode Undangan</h3>
+                        <div class="bg-light p-3 rounded mb-3">
+                            <h2 id="inviteCode" class="mb-0"></h2>
+                        </div>
+                        <p class="text-muted">Bagikan kode ini kepada anggota keluarga untuk bergabung</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Data Storage
+        let currentUser = null;
+        let users = JSON.parse(localStorage.getItem('budgetkita_users')) || [];
+        let transactions = JSON.parse(localStorage.getItem('budgetkita_transactions')) || [];
+        let budgets = JSON.parse(localStorage.getItem('budgetkita_budgets')) || [];
+        let savings = JSON.parse(localStorage.getItem('budgetkita_savings')) || [];
+
+        // Auth Functions
+        function showAuthPages() {
+            document.getElementById('authPages').style.display = 'block';
+            document.getElementById('mainApp').style.display = 'none';
+            showLogin();
+        }
+
+        function showLogin() {
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('registerPage').style.display = 'none';
+        }
+
+        function showRegister() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('registerPage').style.display = 'flex';
+        }
+
+        function showMainApp() {
+            document.getElementById('authPages').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('userName').textContent = currentUser.name;
+            updateDashboard();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            setTodayDate();
+        });
+
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('transactionDate');
+            if (dateInput) dateInput.value = today;
+        }
+
+        // Auth Functions
+        function checkAuth() {
+            const savedUser = localStorage.getItem('budgetkita_currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showMainApp();
+            } else {
+                showAuthPages();
+            }
+        }
+
+        function showMainApp() {
+            document.getElementById('authPages').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('userName').textContent = currentUser.name;
+            updateDashboard();
+        }
+
+        function showLogin() {
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('registerPage').style.display = 'none';
+        }
+
+        function showRegister() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('registerPage').style.display = 'flex';
+        }
+
+        // Login Form
+        document.getElementById('loginForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const remember = document.getElementById('rememberMe').checked;
+
+            const user = users.find(u => u.email === email && u.password === btoa(password));
+            
+            if (user) {
+                currentUser = user;
+                if (remember) {
+                    localStorage.setItem('budgetkita_currentUser', JSON.stringify(user));
+                }
+                showLoading();
+                setTimeout(() => {
+                    hideLoading();
+                    showMainApp();
+                }, 500);
+            } else {
+                alert('Email atau password salah');
+            }
+        });
+
+        // Register Form
+        document.getElementById('registerForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const role = document.getElementById('registerRole').value;
+
+            if (users.find(u => u.email === email)) {
+                alert('Email sudah terdaftar');
+                return;
+            }
+
+            const newUser = {
+                id: Date.now().toString(),
+                name,
+                email,
+                password: btoa(password),
+                role,
+                familyId: Date.now().toString(),
+                createdAt: new Date().toISOString()
+            };
+
+            users.push(newUser);
+            localStorage.setItem('budgetkita_users', JSON.stringify(users));
+            
+            alert('Pendaftaran berhasil! Silakan login');
+            showLogin();
+        });
+
+        function logout() {
+            if (confirm('Yakin ingin keluar?')) {
+                localStorage.removeItem('budgetkita_currentUser');
+                currentUser = null;
+                showAuthPages();
+            }
+        }
+
+        // Transaction Form
+        document.getElementById('transactionForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const transaction = {
+                id: Date.now().toString(),
+                userId: currentUser.id,
+                familyId: currentUser.familyId,
+                type: document.getElementById('transactionType').value,
+                category: document.getElementById('transactionCategory').value,
+                amount: parseFloat(document.getElementById('transactionAmount').value),
+                date: document.getElementById('transactionDate').value,
+                note: document.getElementById('transactionNote').value,
+                createdBy: currentUser.name,
+                createdAt: new Date().toISOString()
+            };
+
+            transactions.push(transaction);
+            localStorage.setItem('budgetkita_transactions', JSON.stringify(transactions));
+            
+            bootstrap.Modal.getInstance(document.getElementById('transactionModal')).hide();
+            this.reset();
+            setTodayDate();
+            updateDashboard();
+            showNotification('Transaksi berhasil ditambahkan');
+        });
+
+        // Budget Form
+        document.getElementById('budgetForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const budget = {
+                id: Date.now().toString(),
+                familyId: currentUser.familyId,
+                category: document.getElementById('budgetCategory').value,
+                amount: parseFloat(document.getElementById('budgetAmount').value),
+                month: new Date().toISOString().slice(0, 7)
+            };
+
+            budgets.push(budget);
+            localStorage.setItem('budgetkita_budgets', JSON.stringify(budgets));
+            
+            bootstrap.Modal.getInstance(document.getElementById('budgetModal')).hide();
+            this.reset();
+            updateBudgetList();
+            showNotification('Anggaran berhasil ditambahkan');
+        });
+
+        // Savings Form
+        document.getElementById('savingsForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const saving = {
+                id: Date.now().toString(),
+                familyId: currentUser.familyId,
+                name: document.getElementById('savingsName').value,
+                target: parseFloat(document.getElementById('savingsTarget').value),
+                current: 0,
+                targetDate: document.getElementById('savingsDate').value
+            };
+
+            savings.push(saving);
+            localStorage.setItem('budgetkita_savings', JSON.stringify(savings));
+            
+            bootstrap.Modal.getInstance(document.getElementById('savingsModal')).hide();
+            this.reset();
+            updateSavingsList();
+            showNotification('Target tabungan berhasil ditambahkan');
+        });
+
+        // Update Dashboard
+        function updateDashboard() {
+            const familyTransactions = transactions.filter(t => t.familyId === currentUser.familyId);
+            
+            const income = familyTransactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const expense = familyTransactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const balance = income - expense;
+
+            document.getElementById('totalIncome').textContent = formatCurrency(income);
+            document.getElementById('totalExpense').textContent = formatCurrency(expense);
+            document.getElementById('balance').textContent = formatCurrency(balance);
+
+            updateBudgetProgress();
+            updateRecentTransactions();
+        }
+
+        function updateBudgetProgress() {
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const monthBudgets = budgets.filter(b => 
+                b.familyId === currentUser.familyId && b.month === currentMonth
+            );
+
+            const progressHtml = monthBudgets.length > 0 ? monthBudgets.map(budget => {
+                const spent = transactions
+                    .filter(t => 
+                        t.familyId === currentUser.familyId && 
+                        t.type === 'expense' && 
+                        t.category === budget.category &&
+                        t.date.startsWith(currentMonth)
+                    )
+                    .reduce((sum, t) => sum + t.amount, 0);
+                
+                const percentage = Math.min((spent / budget.amount) * 100, 100);
+                const color = percentage > 90 ? 'danger' : percentage > 70 ? 'warning' : 'success';
+
+                return `
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-500">${budget.category}</span>
+                            <span class="text-muted">${formatCurrency(spent)} / ${formatCurrency(budget.amount)}</span>
+                        </div>
+                        <div class="progress progress-custom">
+                            <div class="progress-bar bg-${color}" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('') : '<div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada anggaran bulan ini</p></div>';
+
+            document.getElementById('budgetProgress').innerHTML = progressHtml;
+        }
+
+        function updateRecentTransactions() {
+            const familyTransactions = transactions
+                .filter(t => t.familyId === currentUser.familyId)
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .slice(0, 5);
+
+            const html = familyTransactions.length > 0 ? familyTransactions.map(t => `
+                <div class="transaction-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="category-badge bg-light">${t.category}</span>
+                                <small class="text-muted">${new Date(t.date).toLocaleDateString('id-ID')}</small>
+                            </div>
+                            <div class="fw-500">${t.note || t.category}</div>
+                            <small class="text-muted">Oleh ${t.createdBy}</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold ${t.type === 'income' ? 'text-success' : 'text-danger'}">
+                                ${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('') : '<div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada transaksi</p><button class="btn btn-primary-custom mt-2" data-bs-toggle="modal" data-bs-target="#transactionModal">Tambah Transaksi</button></div>';
+
+            document.getElementById('recentTransactions').innerHTML = html;
+            if (document.getElementById('allTransactions')) {
+                document.getElementById('allTransactions').innerHTML = html;
+            }
+        }
+
+        function updateBudgetList() {
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const monthBudgets = budgets.filter(b => 
+                b.familyId === currentUser.familyId && b.month === currentMonth
+            );
+
+            const html = monthBudgets.length > 0 ? monthBudgets.map(budget => {
+                const spent = transactions
+                    .filter(t => 
+                        t.familyId === currentUser.familyId && 
+                        t.type === 'expense' && 
+                        t.category === budget.category &&
+                        t.date.startsWith(currentMonth)
+                    )
+                    .reduce((sum, t) => sum + t.amount, 0);
+                
+                const percentage = Math.min((spent / budget.amount) * 100, 100);
+                const remaining = budget.amount - spent;
+
+                return `
+                    <div class="card-custom p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h6 class="mb-1">${budget.category}</h6>
+                                <small class="text-muted">Sisa: ${formatCurrency(remaining)}</small>
+                            </div>
+                            <span class="badge-custom bg-light">${percentage.toFixed(0)}%</span>
+                        </div>
+                        <div class="progress progress-custom mb-2">
+                            <div class="progress-bar bg-${percentage > 90 ? 'danger' : 'primary'}" style="width: ${percentage}%"></div>
+                        </div>
+                        <small class="text-muted">${formatCurrency(spent)} dari ${formatCurrency(budget.amount)}</small>
+                    </div>
+                `;
+            }).join('') : '<div class="empty-state"><i class="bi bi-pie-chart"></i><p>Belum ada anggaran</p><button class="btn btn-primary-custom mt-2" data-bs-toggle="modal" data-bs-target="#budgetModal">Tambah Anggaran</button></div>';
+
+            if (document.getElementById('budgetList')) {
+                document.getElementById('budgetList').innerHTML = html;
+            }
+        }
+
+        function updateSavingsList() {
+            const familySavings = savings.filter(s => s.familyId === currentUser.familyId);
+
+            const html = familySavings.length > 0 ? familySavings.map(saving => {
+                const percentage = (saving.current / saving.target) * 100;
+                const daysLeft = Math.ceil((new Date(saving.targetDate) - new Date()) / (1000 * 60 * 60 * 24));
+
+                return `
+                    <div class="card-custom p-4 mb-3">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="mb-1">${saving.name}</h5>
+                                <small class="text-muted">${daysLeft} hari lagi</small>
+                            </div>
+                            <span class="badge-custom bg-primary text-white">${percentage.toFixed(0)}%</span>
+                        </div>
+                        <div class="progress progress-custom mb-3" style="height: 15px;">
+                            <div class="progress-bar bg-primary" style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>${formatCurrency(saving.current)}</span>
+                            <span class="fw-bold">${formatCurrency(saving.target)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('') : '<div class="empty-state"><i class="bi bi-piggy-bank"></i><p>Belum ada target tabungan</p><button class="btn btn-primary-custom mt-2" data-bs-toggle="modal" data-bs-target="#savingsModal">Tambah Target</button></div>';
+
+            if (document.getElementById('savingsList')) {
+                document.getElementById('savingsList').innerHTML = html;
+            }
+        }
+
+        function updateReports() {
+            const period = document.getElementById('reportPeriod').value;
+            const familyTransactions = transactions.filter(t => t.familyId === currentUser.familyId);
+
+            let income = 0, expense = 0;
+            
+            familyTransactions.forEach(t => {
+                if (t.type === 'income') income += t.amount;
+                else expense += t.amount;
+            });
+
+            const html = `
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card-custom p-4 text-center">
+                            <h6 class="text-muted mb-2">Total Pemasukan</h6>
+                            <h3 class="text-success">${formatCurrency(income)}</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card-custom p-4 text-center">
+                            <h6 class="text-muted mb-2">Total Pengeluaran</h6>
+                            <h3 class="text-danger">${formatCurrency(expense)}</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card-custom p-4 text-center">
+                            <h6 class="text-muted mb-2">Selisih</h6>
+                            <h3 class="${income - expense >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(income - expense)}</h3>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            if (document.getElementById('reportContent')) {
+                document.getElementById('reportContent').innerHTML = html;
+            }
+        }
+
+        // Section Navigation
+        function showSection(section) {
+            document.querySelectorAll('[id$="Section"]').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            
+            const sectionElement = document.getElementById(section + 'Section');
+            if (sectionElement) {
+                sectionElement.style.display = 'block';
+            }
+
+            if (section === 'budget') updateBudgetList();
+            if (section === 'savings') updateSavingsList();
+            if (section === 'reports') updateReports();
+            if (section === 'profile') showProfile();
+            if (section === 'family') showFamily();
+        }
+
+        function showProfile() {
+            const html = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nama</label>
+                            <p>${currentUser.name}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email</label>
+                            <p>${currentUser.email}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Peran</label>
+                            <p><span class="badge-custom bg-primary text-white">${currentUser.role}</span></p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('profileContent').innerHTML = html;
+        }
+
+        function showFamily() {
+            const familyMembers = users.filter(u => u.familyId === currentUser.familyId);
+            
+            const html = familyMembers.map(member => `
+                <div class="card-custom p-3 mb-2">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon balance-icon me-3">
+                            <i class="bi bi-person"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">${member.name}</h6>
+                            <small class="text-muted">${member.role}</small>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('familyMembers').innerHTML = html;
+        }
+
+        // Invite Modal
+        document.getElementById('inviteModal')?.addEventListener('show.bs.modal', function() {
+            const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+            document.getElementById('inviteCode').textContent = code;
+        });
+
+        // Utility Functions
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function showNotification(message) {
+            const toast = document.createElement('div');
+            toast.className = 'position-fixed bottom-0 end-0 p-3';
+            toast.style.zIndex = '9999';
+            toast.innerHTML = `
+                <div class="toast show" role="alert">
+                    <div class="toast-body bg-success text-white rounded">
+                        <i class="bi bi-check-circle me-2"></i>${message}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
 </body>
-</html>
+</html>AuthPages() {
+            document.getElementById('authPages').style.display = 'block';
+            document.getElementById('mainApp').style.display = 'none';
+            showLogin();
+        }
+
+        function show
